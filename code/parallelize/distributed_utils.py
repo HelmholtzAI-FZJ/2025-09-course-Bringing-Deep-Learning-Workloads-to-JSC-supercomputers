@@ -4,6 +4,8 @@ import functools
 import torch
 from torch.distributed import checkpoint as dcp
 from torch.distributed.checkpoint import state_dict as dist_state_dict
+from torch.distributed.checkpoint.stateful import Stateful
+from torch.distributed.checkpoint.state_dict import get_state_dict, set_state_dict
 
 def setup():
 
@@ -57,7 +59,7 @@ def save0(*args, **kwargs):
         torch.save(*args, **kwargs)
 
 
-def save_full_model(model, optimizer=None, *args, **kwargs):
+def save_full_model(model, optimizer=None, save_dir='checkpoints', *args, **kwargs):
     """Stream all model parameters to rank 0 on the CPU, then pass all
     other given arguments to `torch.save` to save the model, but only on
     the root process.
@@ -80,39 +82,12 @@ def save_full_model(model, optimizer=None, *args, **kwargs):
         )
         cpu_state['optimizer'] = optim_state_dict
 
-    save0(cpu_state, *args, **kwargs)
-
-
-def save_sharded_model(model, optimizer=None, save_dir='checkpoints'):
-    """Obtain sharded model parameters from the GPU, then save the model
-    as a distributed checkpoint to the given directory. Saving a
-    distributed checkpoint means that the checkpoint will be split into
-    individual files, one for each process.
-    """
-    state_dict_options = dist_state_dict.StateDictOptions(
-        full_state_dict=False,
-        cpu_offload=False,
-    )
-    model_state_dict = dist_state_dict.get_model_state_dict(
-        model,
-        options=state_dict_options,
-    )
-    cp_state_dict = {'model': model_state_dict}
-  
-    if optimizer is not None:
-        optim_state_dict = dist_state_dict.get_optimizer_state_dict(
-            model,
-            optimizer,
-            options=state_dict_options,
-        )
-        cp_state_dict['optimizer'] = optim_state_dict
-
-    
+    # save0(cpu_state, *args, **kwargs)
     dcp.save(
-        cp_state_dict,
+        cpu_state,
         storage_writer=dcp.FileSystemWriter(save_dir, overwrite=True),
     )
-            
+
 
 def load_full_model(model, optimizer=None, *args, **kwargs):
     """Pass all other given arguments to `torch.load` and load the
@@ -129,35 +104,38 @@ def load_full_model(model, optimizer=None, *args, **kwargs):
     return model, optimizer
 
 
-def load_sharded_model(model, optimizer=None, load_dir='checkpoints'):
-    """Set the given model's state dictionary in-place from the given
-    distributed checkpoint directory.
+class AppState(Stateful):
+    """This is a useful wrapper for checkpointing the Application State. Since this object is compliant
+    with the Stateful protocol, DCP will automatically call state_dict/load_stat_dict as needed in the
+    dcp.save/load APIs.
+
+    Note: We take advantage of this wrapper to hande calling distributed state dict methods on the model
+    and optimizer.
     """
-    state_dict_options = dist_state_dict.StateDictOptions(
-        cpu_offload=False,
-    )
-    model_state_dict = dist_state_dict.get_model_state_dict(
-        model,
-        options=state_dict_options,
-    )
-    cp_state_dict = {'model': model_state_dict}
 
-    dcp.load(
-        cp_state_dict,
-        storage_reader=dcp.FileSystemReader(load_dir),
-    )
+    def __init__(self, model, optimizer=None):
+        self.model = model
+        self.optimizer = optimizer
 
-    dist_state_dict.set_model_state_dict(model, cp_state_dict['model'])
+    def state_dict(self):
+        # this line automatically manages FSDP FQN's, as well as sets the default state dict type to FSDP.SHARDED_STATE_DICT
+        model_state_dict, optimizer_state_dict = get_state_dict(self.model, self.optimizer)
+        return {
+            "model": model_state_dict,
+            "optim": optimizer_state_dict
+        }
 
-    if optimizer is not None:
-        optim_state_dict = dist_state_dict.get_optimizer_state_dict(
-            model,
-            optimizer,
-            options=state_dict_options,
+    def load_state_dict(self, state_dict):
+        # sets our state dicts on the model and optimizer, now that we've loaded
+        set_state_dict(
+            self.model,
+            self.optimizer,
+            model_state_dict=state_dict["model"],
+            optim_state_dict=state_dict["optim"]
         )
-        cp_state_dict['optimizer'] = optim_state_dict
-        
-        dist_state_dict.set_optimizer_state_dict(
-            model, optimizer, cp_state_dict['optimizer']
-        )
+
+
+def save_sharded_model(model, optimizer=None, CHECKPOINT_DIR='checkpoints'):
+    state_dict = { "app": AppState(model, optimizer) }
+    dcp.save(state_dict, checkpoint_id=CHECKPOINT_DIR)
 

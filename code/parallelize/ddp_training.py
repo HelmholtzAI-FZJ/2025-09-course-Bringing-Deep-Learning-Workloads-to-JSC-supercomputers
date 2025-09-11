@@ -8,10 +8,8 @@ from torch.utils.data import DataLoader
 
 from dataset import LanguageModelingDataset, build_vocab
 from transformerLM import TransformerLM, ModelArgs
-
+# This file contains utility_functions for distributed training.
 from distributed_utils import *
-
-
 
 def train_model(model, train_loader, vocab, optimizer, loss_func, device):
     """
@@ -25,7 +23,6 @@ def train_model(model, train_loader, vocab, optimizer, loss_func, device):
     for _, (src, tgt) in enumerate(train_loader):
         
         src, tgt = src.to(device), tgt.to(device)
-        # print0(f"src shape: {src.dtype}, tgt shape: {tgt.dtype}")
         output = model(src)  # (seq_len, batch, vocab)
         
         loss = loss_func(output.view(-1, len(vocab)), tgt.t().reshape(-1))
@@ -87,49 +84,35 @@ def main(args):
                             batch_size=args.batch_size, 
                             sampler=train_sampler, # pass the sampler argument to the DataLoader
                             num_workers=int(os.getenv('SLURM_CPUS_PER_TASK')),
-                            pin_memory=True,
-                            drop_last=True)  # drop the last incomplete batch
+                            pin_memory=True)
     val_loader = DataLoader(val_dataset,
                             batch_size=args.batch_size,
                             sampler=val_sampler, # pass the sampler argument to the DataLoader
-                            pin_memory=True,
-                            drop_last=True)
+                            pin_memory=True)
     test_loader = DataLoader(test_dataset,
                             batch_size=args.batch_size,
                             sampler=test_sampler, # pass the sampler argument to the DataLoader
-                            pin_memory=True,
-                            drop_last=True)
+                            pin_memory=True)             
 
 
-    # # Set up the model and move it to the device
-    # model = TransformerLM(vocab_size=len(vocab), d_model=128, nhead=4, num_layers=2)
-
-
-    model_args = ModelArgs(dim=128, n_heads=4, max_seq_length=2048, vocab_size=len(vocab), num_encoder_layers=2)
+    # Set up the model and move it to the device
+    model_args = ModelArgs(
+        dim=128, 
+        n_heads=4, 
+        max_seq_length=2048, 
+        vocab_size=len(vocab), 
+        num_encoder_layers=2
+    )
     model = TransformerLM(model_args)
-
-    # src_vocab_size = len(vocab)
-    # tgt_vocab_size = len(vocab)
-    # d_model = 128
-    # num_heads = 4
-    # num_layers = 2
-    # d_ff = 2048
-    # max_seq_length = 5000
-    # dropout = 0.1
-
-    # model = Transformer(src_vocab_size, tgt_vocab_size, d_model, num_heads, num_layers, d_ff, max_seq_length, dropout)
-        
     model = model.to(device)
-    print0(f"Model initialized on device {device} with rank {rank} {model}")
-
+    
     ## TODO 17: Remove the line that wraps the model in a DistributedDataParallel (DDP) module and wrap the model in torch.distributed.fsdp module instead.
     # Wrap the model in DistributedDataParallel module 
     model = torch.nn.parallel.DistributedDataParallel(
         model,
-        # find_unused_parameters=True,
         device_ids=[local_rank],
     )
-
+    
     # Set up the loss function and optimizer
     loss_func = nn.CrossEntropyLoss()
     optimizer = optim.AdamW(model.parameters(), lr=args.lr)
@@ -156,8 +139,8 @@ def main(args):
 
     
     test_loss = test_model(model, test_loader, vocab, loss_func, device)
-    # We use the utility function print0 to print messages only from rank 0.
-    print0('Final test loss:', test_loss.item())
+    ## TODO 11: Replace print by print0 to print messages once.
+    print0('Final test loss:', test_loss.item()) 
 
     ## TODO 18: Replace save0 method by either save_full_model or save_sharded_model to save the full model state or the sharded model state respectively.
     # We allow only rank=0 to save the model

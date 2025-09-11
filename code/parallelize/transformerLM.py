@@ -71,7 +71,6 @@ class MultiheadAttention(nn.Module):
         is_causal: bool = False,
     ) :
 
-        # print("query shape:", query.shape)
         tgt_len, bsz, embed_dim_to_check = query.size()
         assert self.embed_dim == embed_dim_to_check
         assert key.size(0) == value.size(0) and key.size(1) == value.size(1)
@@ -81,9 +80,7 @@ class MultiheadAttention(nn.Module):
             "embed_dim must be divisible by num_heads"
         )
         scaling = float(head_dim) ** -0.5
-        # print(f"query shape: {query.shape}, key shape: {key.shape}, value shape: {value.shape}, head_dim: {head_dim}, num_heads: {self.num_heads}")
-    
-        # print(f"query dtype: {query.dtype}, key dtype: {key.dtype}, value dtype: {value.dtype}")
+        
         q = self.linear_Q(query)
         k = self.linear_K(key)
         v = self.linear_V(value)
@@ -214,15 +211,11 @@ class TransformerEncoderLayer(nn.Module):
             src
             + self.dropout1(self.self_attn(src, src, src)[0])
         )
-        print0(f"Input shape 3: {src.to_local()[0,:4, :4]}")
-        print0(f"Input shape 3: {src.shape}")
-       
+
         src = self.norm2(
             src
             + self.dropout2(self.linear2(self.dropout(F.relu(self.linear1(src)))))
         )
-        print0(f"Input shape 4: {src.to_local()[0,:4, :4]}")
-        print0(f"Input shape 4: {src.shape}")
 
         return src
 
@@ -253,24 +246,13 @@ class TransformerLM(nn.Module):
 
     def forward(self, x):
 
-        x = x.t()  # (seq_len, batch)
-        print0(f"Input shape 0 : {x[0,:4]}")
-        print0(f"Input shape 0 : {x.shape}")
+        x = x.t() 
         x = self.embed(x)
-        # print0(f"Input shape 1: {x.shape}")
-        print0(f"Input shape 1: {x.to_local()[0,:4, :4]}")
-        print0(f"Input shape 1: {x.shape}")
         x = self.pos_encoder(x)
-        print0(f"Input shape 2: {x.to_local()[0,:4, :4]}")
-        print0(f"Input shape 2: {x.shape}")
 
         for layer in self.layers:
             x = layer(x)
         x = self.norm(x)
-        print0(f"Input shape 5: {x.to_local()[0,:4, :4]}")
-        print0(f"Input shape 5: {x.shape}")
         x = self.fc(x)
-        print0(f"Input shape 6: {x[0,:4, :4]}")
-        print0(f"Output shape: {x.shape}")
         return x
 

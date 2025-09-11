@@ -7,7 +7,7 @@ import torch.optim as optim
 from torch.utils.data import DataLoader
 
 from dataset import LanguageModelingDataset, build_vocab
-from model import TransformerLM
+from transformerLM import TransformerLM, ModelArgs
 # This file contains utility_functions for distributed training.
 from distributed_utils import *
 
@@ -63,7 +63,7 @@ def test_model(model, dataloader, vocab, loss_func, device):
 def main(args):
 
     # Initialize a communication group and return the right identifiers.
-    local_rank, rank, device = setup()
+    local_rank, rank, device, world_size = setup()
     
     # Build vocab from training data
     vocab, stoi, itos = build_vocab('train')
@@ -96,7 +96,14 @@ def main(args):
 
 
     # Set up the model and move it to the device
-    model = TransformerLM(vocab_size=len(vocab), d_model=128, nhead=4, num_layers=2)
+    model_args = ModelArgs(
+        dim=128, 
+        n_heads=4, 
+        max_seq_length=2048, 
+        vocab_size=len(vocab), 
+        num_encoder_layers=2
+    )
+    model = TransformerLM(model_args)
     model = model.to(device)
     
     # Unlike DDP, we should apply fully_shard to both submodules and the root model.
@@ -113,7 +120,7 @@ def main(args):
 
     # Identifies all parameters not already wrapped and groups them into a shardable unit.
     torch.distributed.fsdp.fully_shard(model, **fsdp_kwargs)
-
+    
     # Set up the loss function and optimizer
     loss_func = nn.CrossEntropyLoss()
     optimizer = optim.AdamW(model.parameters(), lr=args.lr)
@@ -139,11 +146,11 @@ def main(args):
 
     
     test_loss = test_model(model, test_loader, vocab, loss_func, device)
-    # We use the utility function print0 to print messages only from rank 0.
-    print0('Final test loss:', test_loss.item())
+    ## TODO 11: Replace print by print0 to print messages once.
+    print0('Final test loss:', test_loss.item()) 
 
     # Save sharded model and optimizer
-    save_sharded_model(model, optimizer, 'model_final')
+    # save_sharded_model(model, optimizer, 'model_final')
 
     # Destroy the process group to clean up resources
     destroy_process_group()
