@@ -4,6 +4,7 @@
   <meta charset="utf-8">
   <meta name="generator" content="pandoc">
   <meta name="author" content="Alexandre Strube // Sabrina Benassou">
+  <meta name="dcterms.date" content="2025-09-16">
   <title>Bringing Deep Learning Workloads to JSC supercomputers</title>
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -30,8 +31,9 @@
     }
     .display.math{display: block; text-align: center; margin: 0.5rem auto;}
     /* CSS for syntax highlighting */
+    html { -webkit-text-size-adjust: 100%; }
     pre > code.sourceCode { white-space: pre; position: relative; }
-    pre > code.sourceCode > span { line-height: 1.25; }
+    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
     pre > code.sourceCode > span:empty { height: 1.2em; }
     .sourceCode { overflow: visible; }
     code.sourceCode > span { color: inherit; text-decoration: inherit; }
@@ -228,7 +230,7 @@
 supercomputers</h1>
   <p class="subtitle">Data loading</p>
   <p class="author">Alexandre Strube // Sabrina Benassou</p>
-  <p class="date">June 25th, 2025</p>
+  <p class="date">September 16, 2025</p>
 </section>
 
 <section class="slide level2">
@@ -236,25 +238,25 @@ supercomputers</h1>
 <h3 id="schedule-for-day-2">Schedule for day 2</h3>
 <table>
 <thead>
-<tr class="header">
+<tr>
 <th>Time</th>
 <th>Title</th>
 </tr>
 </thead>
 <tbody>
-<tr class="odd">
+<tr>
 <td>13:00 - 13:10</td>
 <td>Welcome, questions</td>
 </tr>
-<tr class="even">
+<tr>
 <td>13:10 - 14:10</td>
 <td>Data loading</td>
 </tr>
-<tr class="odd">
+<tr>
 <td>14:10 - 14:25</td>
 <td>Coffee Break (flexible)</td>
 </tr>
-<tr class="even">
+<tr>
 <td>14:25 - 17:00</td>
 <td>Parallelize Training</td>
 </tr>
@@ -283,13 +285,13 @@ alt="JSC Supercomputer Stragegy" /></li>
 <li class="fragment"><p>Always store your code in the project1 folder
 (<strong><code>$PROJECT_projectname</code></strong> ). In our case</p>
 <div class="sourceCode" id="cb1"><pre
-class="sourceCode bash"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="ex">/p/project1/training2529/</span><span class="va">$USER</span></span></code></pre></div></li>
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="ex">/p/project1/training2543/</span><span class="va">$USER</span></span></code></pre></div></li>
 <li class="fragment"><p>Store data in the scratch directory for faster
 I/O access (<strong><code>$SCRATCH_projectname</code></strong>).
 ⚠️<strong>Files in scratch are deleted after 90 days of
 inactivity.</strong></p>
 <div class="sourceCode" id="cb2"><pre
-class="sourceCode bash"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="ex">/p/scratch/training2529/</span><span class="va">$USER</span></span></code></pre></div></li>
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="ex">/p/scratch/training2543/</span><span class="va">$USER</span></span></code></pre></div></li>
 <li class="fragment"><p>Store the data in <a
 href="https://judoor.fz-juelich.de/projects/datasets/"><code>$DATA_dataset</code></a>
 for a more permanent location.</p>

@@ -3,16 +3,16 @@
 #SBATCH --gres=gpu:4  
 #SBATCH --ntasks-per-node=1
 #SBATCH --cpus-per-task=48
-#SBATCH --account=training2529
+#SBATCH --account=training2543
 #SBATCH --partition=dc-gpu
 #SBATCH --time=00:30:00
 #SBATCH --output=%j.out
 #SBATCH --error=%j.err
 
 <<<<<<< HEAD
-##SBATCH --reservation=training2529_day2 # For today only
+##SBATCH --reservation=training2543_day2 # For today only
 =======
-#SBATCH --reservation=training2529 # For today only
+#SBATCH --reservation=training2543 # For today only
 >>>>>>> b32ad3d7f50eec10c0873b7931eb268487e14b1a
 
 # Export the necessary environment variables for huggingface offline mode
@@ -32,8 +32,8 @@ export MASTER_PORT=7010
 
 # We activate our environemnt
 <<<<<<< HEAD
-source /p/scratch/training2529/benassou1/sc_venv_template/activate.sh
-# source /p/scratch/training2529/benassou1/2025-06-course-Bringing-Deep-Learning-Workloads-to-JSC-supercomputers/code/parallelize/sc_venv_template/activate.sh
+source /p/scratch/training2543/benassou1/sc_venv_template/activate.sh
+# source /p/scratch/training2543/benassou1/2025-06-course-Bringing-Deep-Learning-Workloads-to-JSC-supercomputers/code/parallelize/sc_venv_template/activate.sh
 =======
 source $HOME/course/sc_venv_template/activate.sh
 >>>>>>> b32ad3d7f50eec10c0873b7931eb268487e14b1a

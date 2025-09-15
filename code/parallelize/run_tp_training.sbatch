@@ -3,7 +3,7 @@
 #SBATCH --gres=gpu:4  
 #SBATCH --ntasks-per-node=1
 #SBATCH --cpus-per-task=48
-#SBATCH --account=training2529
+#SBATCH --account=training2543
 #SBATCH --partition=dc-gpu
 #SBATCH --time=00:30:00
 #SBATCH --output=%j.out
@@ -29,7 +29,7 @@ export MASTER_ADDR="$(nslookup "$MASTER_ADDR" | grep -oP '(?<=Address: ).*')"
 export MASTER_PORT=7010
 
 # We activate our environemnt
-source /p/scratch/training2529/benassou1/sc_venv_template/activate.sh
+source /p/scratch/training2543/benassou1/sc_venv_template/activate.sh
 
 # Launch a distributed training job across multiple nodes and GPUs
 srun --cpu_bind=none bash -c "torchrun_jsc \
