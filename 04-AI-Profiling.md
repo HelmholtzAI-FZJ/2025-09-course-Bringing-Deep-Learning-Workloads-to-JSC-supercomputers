@@ -2,7 +2,7 @@
 author: Alexandre Strube // Sabrina Benassou // Javad Kasravi
 title: Bringing Deep Learning Workloads to JSC supercomputers
 subtitle: AI Profiling
-date: March 25th, 2025
+date: September 16, 2025
 ---
 
 ### Performance Terminology
