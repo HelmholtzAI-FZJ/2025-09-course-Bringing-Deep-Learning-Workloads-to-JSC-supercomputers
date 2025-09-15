@@ -107,7 +107,7 @@ def save_h5(splits, train_samples, train_targets, val_samples, val_targets):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('--data_root', type=str, default="/p/scratch/training2529/")
+    parser.add_argument('--data_root', type=str, default="/p/scratch/training2543/")
     parser.add_argument('--dset_type', choices=['h5', 'arrow'])
     parser.add_argument('--target_folder', type=str, required=True)
     args = parser.parse_args()
