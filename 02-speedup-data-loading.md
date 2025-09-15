@@ -25,7 +25,7 @@ date: June 25th, 2025
 ## I/O is separate and shared
 
 - All compute nodes of all supercomputers see the same files
-- Performance tradeoff between shared acessibility and speed
+- Performance tradeoff between shared accessibility and speed
 - Our I/O server is almost a supercomputer by itself
     ![JSC Supercomputer Stragegy](images/machines.png){height=350pt}
 
@@ -57,7 +57,7 @@ date: June 25th, 2025
 
 - We have CPUs and lots of memory - let's use them
 - If your dataset is relatively small (< 500 GB) and can fit into the working memory (RAM) of each compute node (along with the program state), you can store it in **``/dev/shm``**. This is a special filesystem that uses RAM for storage, making it extremely fast for data access. ⚡️
-- For bigger datasets (> 500 GB) you have many strategies:
+- For bigger datasets (> 500 GB), you have many strategies:
     - Hierarchical Data Format 5 (HDF5)
     - Apache Arrow
     - NVIDIA Data Loading Library (DALI)
@@ -80,7 +80,7 @@ date: June 25th, 2025
 
 ## Data loading
 
-- In this course, we provide you with some examples on how to create and HDF5 and pyarrow files.
+- In this course, we provide you with some examples on how to create HDF5 and pyarrow files.
 
 - We need to download some code:
 
@@ -103,7 +103,7 @@ date: June 25th, 2025
 #### Large Scale Visual Recognition Challenge (ILSVRC)
 - An image dataset organized according to the [WordNet hierarchy](https://wordnet.princeton.edu). 
 - Extensively used in algorithms for object detection and image classification at large scale. 
-- It has 1000 classes, that comprises 1.2 million images for training, and 50,000 images for the validation set.
+- It has 1000 classes, which comprise 1.2 million images for training, and 50,000 images for the validation set.
 
 ![](images/imagenet_banner.jpeg)
 
