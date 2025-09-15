@@ -10,9 +10,9 @@
 #SBATCH --error=%j.err
 
 <<<<<<< HEAD
-##SBATCH --reservation=training2543_day2 # For today only
+##SBATCH --reservation=ai-course-day2 # For today only
 =======
-#SBATCH --reservation=training2543 # For today only
+#SBATCH --reservation=ai-course-day2 # For today only
 >>>>>>> b32ad3d7f50eec10c0873b7931eb268487e14b1a
 
 # Export the necessary environment variables for huggingface offline mode
