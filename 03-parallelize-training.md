@@ -1032,11 +1032,9 @@ We are not done yet with **```run_to_distributed_training.sbatch```** file:
 
 ## How the model is saved
 
-- We can either save the full model state, as we did with DDP, or save the sharded model state. We can also choose to save the optimizer state.
+- We can save the sharded model state and the optimizer state using **DCP**.
 
-- The relevant methods can be found in the **distributed_utils.py** file.
-
-- In both cases, we use **DCP** to save the model.
+- The relevant method can be found in the **distributed_utils.py** file.
 
 ---
 
@@ -1051,9 +1049,9 @@ We are not done yet with **```run_to_distributed_training.sbatch```** file:
 
 ---
 
-## Save full model state
+## Save sharded model 
 
-- We use **get_model_state_dict** method with **full_state_dict=True** and **cpu_offload=True** to all-gathers tensors and offload them to CPU. No ShardedTensor will be in the returned state_dict. 
+- We use **get_model_state_dict** method with **full_state_dict=False** and **cpu_offload=True** to all-gathers tensors and offload them to CPU. 
 
     ```python
     def save_full_model(model, optimizer=None, *args, **kwargs):
@@ -1062,7 +1060,7 @@ We are not done yet with **```run_to_distributed_training.sbatch```** file:
         the root process.
         """
         state_dict_options = dist_state_dict.StateDictOptions(
-            full_state_dict=True,
+            full_state_dict=False,
             cpu_offload=True,
         )
         cpu_state_dict = dist_state_dict.get_model_state_dict(
@@ -1082,45 +1080,12 @@ We are not done yet with **```run_to_distributed_training.sbatch```** file:
 
 ---
 
-## Save sharded model 
-- We use the **get_model_state_dict** again, but with **full_state_dict=False** and **cpu_offload=False**. 
-
-    ``` python
-    def save_sharded_model(model, optimizer=None, save_dir='checkpoints'):
-        """Obtain sharded model parameters from the GPU, then save the model
-        as a distributed checkpoint to the given directory. Saving a
-        distributed checkpoint means that the checkpoint will be split into
-        individual files, one for each process.
-        """
-        state_dict_options = dist_state_dict.StateDictOptions(
-            cpu_offload=False,
-        )
-        model_state_dict = dist_state_dict.get_model_state_dict(
-            model,
-            options=state_dict_options,
-        )
-        cp_state_dict = {'model': model_state_dict}
-        if optimizer is not None:
-            optim_state_dict = dist_state_dict.get_optimizer_state_dict(
-                model,
-                optimizer,
-                options=state_dict_options,
-            )
-            cp_state_dict['optimizer'] = optim_state_dict
-        dcp.save(
-            cp_state_dict,
-            storage_writer=dcp.FileSystemWriter(save_dir, overwrite=True),
-        )
-    ```
-
----
-
 ## Run your training
 
 - You can run the same sbatch file without any modification.
 
     ```bash
-    sbatch run_to_fsdp_training.sbatch
+    sbatch run_to_distributed_training.sbatch
     ```
 
 ---
