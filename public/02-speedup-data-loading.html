@@ -15,6 +15,9 @@
     .reveal .sourceCode {  /* see #7635 */
       overflow: visible;
     }
+    /* Default styles provided by pandoc.
+    ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+    */
     code{white-space: pre-wrap;}
     span.smallcaps{font-variant: small-caps;}
     div.columns{display: flex; gap: min(4vw, 1.5em);}
@@ -272,10 +275,10 @@ supercomputers</h1>
 <ul>
 <li class="fragment">All compute nodes of all supercomputers see the
 same files</li>
-<li class="fragment">Performance tradeoff between shared acessibility
+<li class="fragment">Performance tradeoff between shared accessibility
 and speed</li>
 <li class="fragment">Our I/O server is almost a supercomputer by itself
-<img data-src="images/machines.png" style="height:4.86111in"
+<img data-src="images/machines.png" style="height:350pt"
 alt="JSC Supercomputer Stragegy" /></li>
 </ul>
 </section>
@@ -310,7 +313,7 @@ with the program state), you can store it in
 <strong><code>/dev/shm</code></strong>. This is a special filesystem
 that uses RAM for storage, making it extremely fast for data access.
 ⚡️</li>
-<li class="fragment">For bigger datasets (&gt; 500 GB) you have many
+<li class="fragment">For bigger datasets (&gt; 500 GB), you have many
 strategies:
 <ul>
 <li class="fragment">Hierarchical Data Format 5 (HDF5)</li>
@@ -345,7 +348,7 @@ data-src="images/inodes.png" /></li>
 <h2>Data loading</h2>
 <ul>
 <li class="fragment"><p>In this course, we provide you with some
-examples on how to create and HDF5 and pyarrow files.</p></li>
+examples on how to create HDF5 and pyarrow files.</p></li>
 <li class="fragment"><p>We need to download some code:</p>
 <div class="sourceCode" id="cb4"><pre
 class="sourceCode bash"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> <span class="va">$HOME</span>/course</span>
@@ -365,7 +368,7 @@ Visual Recognition Challenge (ILSVRC)</h4>
 href="https://wordnet.princeton.edu">WordNet hierarchy</a>.</li>
 <li class="fragment">Extensively used in algorithms for object detection
 and image classification at large scale.</li>
-<li class="fragment">It has 1000 classes, that comprises 1.2 million
+<li class="fragment">It has 1000 classes, which comprise 1.2 million
 images for training, and 50,000 images for the validation set.</li>
 </ul>
 <p><img data-src="images/imagenet_banner.jpeg" /></p>
