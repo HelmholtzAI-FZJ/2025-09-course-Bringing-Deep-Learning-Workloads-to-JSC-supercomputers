@@ -7,7 +7,7 @@ import torch.optim as optim
 from torch.utils.data import DataLoader
 
 from dataset import LanguageModelingDataset, build_vocab
-from model import TransformerLM
+from transformerLM import TransformerLM, ModelArgs
 ## TODO 1: Import distributed_utils to use the utility methods available in it.
 
 
@@ -91,7 +91,14 @@ def main(args):
 
 
     # Set up the model and move it to the device
-    model = TransformerLM(vocab_size=len(vocab), d_model=128, nhead=4, num_layers=2)
+    model_args = ModelArgs(
+        dim=128, 
+        n_heads=4, 
+        max_seq_length=2048, 
+        vocab_size=len(vocab), 
+        num_encoder_layers=2
+    )
+    model = TransformerLM(model_args)
     model = model.to(device)
     
     ## TODO 17: Remove the line that wraps the model in a DistributedDataParallel (DDP) module and wrap the model in torch.distributed.fsdp module instead.
@@ -120,7 +127,7 @@ def main(args):
 
             ## TODO 18: Replace save0 method by either save_full_model or save_sharded_model to save the full model state or the sharded model state respectively.
             ## TODO 12: Replace torch.save method with the utility function save0 to save the model.
-            torch.save(model, 'model-best.pt') 
+            torch.save(model, 'model_best.pt')
 
     
     test_loss = test_model(model, test_loader, vocab, loss_func, device)

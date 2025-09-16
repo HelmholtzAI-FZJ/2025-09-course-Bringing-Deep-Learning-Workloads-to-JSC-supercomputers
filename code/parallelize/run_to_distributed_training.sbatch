@@ -3,13 +3,13 @@
 #SBATCH --gres=gpu:1 ## TODO 14: Set the number of GPUs to use for training.
 #SBATCH --ntasks-per-node=1
 #SBATCH --cpus-per-task=128
-#SBATCH --account=training2529
+#SBATCH --account=training2543
 #SBATCH --partition=dc-gpu
 #SBATCH --time=03:00:00
 #SBATCH --output=%j.out
 #SBATCH --error=%j.err
 
-#SBATCH --reservation=training2529 # For today only
+#SBATCH --reservation=ai-course-day2 # For today only
 
 # Export the necessary environment variables for huggingface offline mode
 export HF_DATASETS_OFFLINE=1

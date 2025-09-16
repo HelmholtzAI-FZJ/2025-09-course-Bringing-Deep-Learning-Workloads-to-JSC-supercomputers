@@ -1,19 +1,150 @@
 ---
-author: Alexandre Strube // Sabrina Benassou 
+author: Alexandre Strube // Sabrina Benassou // Javad Kasravi
 title: Bringing Deep Learning Workloads to JSC supercomputers
-subtitle: Parallelize Training
+subtitle: AI Profiling
 date: September 16, 2025
 ---
 
-## Before Starting
+### Performance Terminology
 
-- Move to the correct folder
-    
-    ```bash
-    cd 2025-06-course-Bringing-Deep-Learning-Workloads-to-JSC-supercomputers/code/parallelize/
-    ```
+- Latency: the time it takes for one GPU or node to start exchanging information with another GPU or node.
+
+- Bandwidth: The maximum amount of data that can be transferred per unit of time between GPUs, CPUs, or nodes.
+
+- Host: CPU + system memory.
+
+- Device: GPU + GPU memory.
 
 ---
+
+##  Single Node Communications
+
+
+
+##  Base System
+
+
+![](images/profiling/base_system.png)
+
+##  Naive communication (staging through host memory)
+
+**Data Path:** 
+
+```mermaid
+GPU 0  →  PCI Bus  →  System Memory →  PCI Bus →  GPU 1
+```
+
+![](images/profiling/host_staging_copy.png)
+
+
+##  PCI Bus Peer-to-Peer (P2P) communication
+
+**Data Path:** 
+
+```mermaid
+GPU 0  →  PCI Bus  →  GPU 1
+```
+
+![](images/profiling/p2p-memory-access.png)
+
+GPUs on the same PCI directly access each other’s memory without staging through host (CPU) memory
+
+
+## GPUDirect P2P communication (NVLink)
+
+**Data Path** 
+
+```mermaid
+GPU 0  →  NVLink  →  GPU 2
+```
+![](images/profiling/NVswitch_01.png)
+
+GPUs use NVLink to directly access each other’s memory without staging through host (CPU) memory
+
+
+## Throughput Comparison
+
+| Communication Type | Throughput   |
+|---------------------|------------------------|
+| Naive communication               | ~16 GB/s              <span style="font-size:2em">🐢</span> |
+| PCIe Bus P2P communication       | ~32 GB/s              <span style="font-size:2em">🚗</span> |
+| GPUDirect P2P communication             | 600 GB/s total per GPU          <span style="font-size:2em">🏎️</span> |
+
+
+##  How we can check?!
+
+
+```mermaid
+srun -n1 -A {your_account} -p dc-gpu-devel  --gres=gpu:4 nvidia-smi topo -p2p r
+```
+![](images/profiling/p2pr.png)
+
+
+This means all the GPUs can communicate via P2P with each other through PCIe.
+
+##  How we can check?!
+```mermaid
+srun -n1 -A {your_account} -p dc-gpu-devel  --gres=gpu:4 nvidia-smi topo -p2p n
+```
+![](images/profiling/p2pr.png)
+
+This means all the GPUs can communicate via P2P with each other through NVLink.
+
+
+## Multinode Commumications
+
+
+## GPUDirect Without RDMA Communication
+
+![](images/profiling/multi_node_without_rdma.png)
+
+GPU data is staged through host memory, sent via PCIe to the InfiniBand NIC, and delivered to the remote GPU
+
+## GPUDirect With RDMA Communication
+
+![](images/profiling/multi_node_with_rdma.png)
+
+Enable external devices like InfiniBand NIC directly access GPU memory for multinode transfers.
+
+
+
+## Throughput Comparison
+
+| Communication Type | Throughput   |
+|---------------------|------------------------|
+| GPUDirect Without RDMA              | ~16 GB/s              <span style="font-size:2em">🐢</span> |
+| GPUDirect With RDMA             | ~ 50 GB/s (2 HDR InfiniBand)          <span style="font-size:2em">🏎️</span> |
+
+
+## What We Should Remember?
+
+
+- Single node training: make sure GPUDirect P2P is enabaled
+
+- Multi node training: make sure GPUDirect With RDMA uses 
+
+
+
+## What is profiling?
+
+Profiling is the first step in optimizing your application. By profiling, we can findout where most of the execution time is spent.
+
+
+## NVIDIA profiling Tools
+
+![](images/profiling/nsight_flowchart_systemcomputegraphics.png)
+
+
+## Nsight Systems Timeline View
+
+- Unified View
+- Performance Insight
+- Multi-Domain Analysis
+- Interactive Exploration
+- Scalability Support
+- Developer-Friendly
+
+
 
 ## What this code does 
 
@@ -1032,9 +1163,11 @@ We are not done yet with **```run_to_distributed_training.sbatch```** file:
 
 ## How the model is saved
 
-- We can save the sharded model state and the optimizer state using **DCP**.
+- We can either save the full model state, as we did with DDP, or save the sharded model state. We can also choose to save the optimizer state.
 
-- The relevant method can be found in the **distributed_utils.py** file.
+- The relevant methods can be found in the **distributed_utils.py** file.
+
+- In both cases, we use **DCP** to save the model.
 
 ---
 
@@ -1049,9 +1182,9 @@ We are not done yet with **```run_to_distributed_training.sbatch```** file:
 
 ---
 
-## Save sharded model 
+## Save full model state
 
-- We use **get_model_state_dict** method with **full_state_dict=False** and **cpu_offload=True** to all-gathers tensors and offload them to CPU. 
+- We use **get_model_state_dict** method with **full_state_dict=True** and **cpu_offload=True** to all-gathers tensors and offload them to CPU. No ShardedTensor will be in the returned state_dict. 
 
     ```python
     def save_full_model(model, optimizer=None, *args, **kwargs):
@@ -1060,7 +1193,7 @@ We are not done yet with **```run_to_distributed_training.sbatch```** file:
         the root process.
         """
         state_dict_options = dist_state_dict.StateDictOptions(
-            full_state_dict=False,
+            full_state_dict=True,
             cpu_offload=True,
         )
         cpu_state_dict = dist_state_dict.get_model_state_dict(
@@ -1080,12 +1213,45 @@ We are not done yet with **```run_to_distributed_training.sbatch```** file:
 
 ---
 
+## Save sharded model 
+- We use the **get_model_state_dict** again, but with **full_state_dict=False** and **cpu_offload=False**. 
+
+    ``` python
+    def save_sharded_model(model, optimizer=None, save_dir='checkpoints'):
+        """Obtain sharded model parameters from the GPU, then save the model
+        as a distributed checkpoint to the given directory. Saving a
+        distributed checkpoint means that the checkpoint will be split into
+        individual files, one for each process.
+        """
+        state_dict_options = dist_state_dict.StateDictOptions(
+            cpu_offload=False,
+        )
+        model_state_dict = dist_state_dict.get_model_state_dict(
+            model,
+            options=state_dict_options,
+        )
+        cp_state_dict = {'model': model_state_dict}
+        if optimizer is not None:
+            optim_state_dict = dist_state_dict.get_optimizer_state_dict(
+                model,
+                optimizer,
+                options=state_dict_options,
+            )
+            cp_state_dict['optimizer'] = optim_state_dict
+        dcp.save(
+            cp_state_dict,
+            storage_writer=dcp.FileSystemWriter(save_dir, overwrite=True),
+        )
+    ```
+
+---
+
 ## Run your training
 
 - You can run the same sbatch file without any modification.
 
     ```bash
-    sbatch run_to_distributed_training.sbatch
+    sbatch run_to_fsdp_training.sbatch
     ```
 
 ---

@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --account=training2529
+#SBATCH --account=training2543
 #SBATCH --mail-user=MYUSER@fz-juelich.de
 #SBATCH --mail-type=ALL
 #SBATCH --nodes=1
@@ -10,7 +10,7 @@
 #SBATCH --error=error-parallel.%j
 #SBATCH --time=00:10:00
 #SBATCH --partition=dc-gpu
-##SBATCH --reservation=training2529 # For today only
+##SBATCH --reservation=ai-course-day1 # For today only
 
 export NCCL_DEBUG=INFO
 export OMP_NUM_THREADS=$SLURM_CPUS_PER_TASK
