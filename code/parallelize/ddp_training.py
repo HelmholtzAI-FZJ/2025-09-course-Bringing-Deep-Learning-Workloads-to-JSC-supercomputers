@@ -64,7 +64,7 @@ def main(args):
 
     # Initialize a communication group and return the right identifiers.
     local_rank, rank, device, world_size = setup()
-    
+
     # Build vocab from training data
     vocab, stoi, itos = build_vocab('train')
 
@@ -128,14 +128,14 @@ def main(args):
         val_loss = test_model(model, val_loader, vocab, loss_func, device)
 
         # We use the utility function print0 to print messages only from rank 0.
-        print0(f'[{epoch+1}/{args.epochs}] Train loss: {train_loss:.5f}, validation loss: {val_loss:.5f}')
+        print0(f'[{epoch+1}/{args.epochs}] Train loss: {train_loss:.5f}, Validation loss: {val_loss:.5f}') 
 
         if val_loss < best_val_loss:
             best_val_loss = val_loss
 
             ## TODO 18: Replace save0 method by either save_full_model or save_sharded_model to save the full model state or the sharded model state respectively.
             # We allow only rank=0 to save the model
-            save0(model, 'model-best.pt')
+            save0(model, 'model_best.pt')
 
     
     test_loss = test_model(model, test_loader, vocab, loss_func, device)
@@ -144,7 +144,7 @@ def main(args):
 
     ## TODO 18: Replace save0 method by either save_full_model or save_sharded_model to save the full model state or the sharded model state respectively.
     # We allow only rank=0 to save the model
-    save0(model, 'model-final.pt')
+    save0(model, 'model_final.pt')
 
     # Destroy the process group to clean up resources
     destroy_process_group()

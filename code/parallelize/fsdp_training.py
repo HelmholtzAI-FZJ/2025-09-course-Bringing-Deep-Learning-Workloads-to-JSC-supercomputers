@@ -64,7 +64,7 @@ def main(args):
 
     # Initialize a communication group and return the right identifiers.
     local_rank, rank, device, world_size = setup()
-    
+
     # Build vocab from training data
     vocab, stoi, itos = build_vocab('train')
 
@@ -150,7 +150,7 @@ def main(args):
     print0('Final test loss:', test_loss.item()) 
 
     # Save sharded model and optimizer
-    # save_sharded_model(model, optimizer, 'model_final')
+    save_sharded_model(model, optimizer, 'model_final')
 
     # Destroy the process group to clean up resources
     destroy_process_group()

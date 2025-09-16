@@ -127,7 +127,7 @@ def main(args):
 
             ## TODO 18: Replace save0 method by either save_full_model or save_sharded_model to save the full model state or the sharded model state respectively.
             ## TODO 12: Replace torch.save method with the utility function save0 to save the model.
-            save_full_model(model, optimizer, 'model_best.pt')
+            torch.save(model, 'model_best.pt')
 
     
     test_loss = test_model(model, test_loader, vocab, loss_func, device)
