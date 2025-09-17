@@ -1,6 +1,6 @@
 ---
 author: Alexandre Strube // Sabrina Benassou // Ismail Khalfaoui
-title: Survey on the course "Bringing Deep Learning Workloads to JSC supercomputers"
+title: Bringing Deep Learning Workloads to JSC supercomputers
 subtitle: Recap of Day 1
 date: September 16th, 2025
 ---
