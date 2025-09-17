@@ -2,7 +2,7 @@
 author: Alexandre Strube // Sabrina Benassou
 title: Survey on the course "Bringing Deep Learning Workloads to JSC supercomputers"
 # subtitle: A primer in supercomputers`
-date: June 25th, 2025
+date: September 16th, 2025
 ---
 
 Hello everyone! 
@@ -20,4 +20,4 @@ it would be very nice if you would give us some feedback, here: http://go.fzj.de
 
 Again, thanks for your time!
 
-Alexandre and Sabrina
+Alexandre, Sabrina and Ismail
