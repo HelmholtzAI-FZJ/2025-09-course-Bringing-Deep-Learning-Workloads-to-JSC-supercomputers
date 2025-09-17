@@ -15,26 +15,19 @@
     .reveal .sourceCode {  /* see #7635 */
       overflow: visible;
     }
-    /* Default styles provided by pandoc.
-    ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
-    */
     code{white-space: pre-wrap;}
     span.smallcaps{font-variant: small-caps;}
     div.columns{display: flex; gap: min(4vw, 1.5em);}
     div.column{flex: auto; overflow-x: auto;}
     div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
-    /* The extra [class] is a hack that increases specificity enough to
-       override a similar rule in reveal.js */
-    ul.task-list[class]{list-style: none;}
+    ul.task-list{list-style: none;}
     ul.task-list li input[type="checkbox"] {
-      font-size: inherit;
       width: 0.8em;
       margin: 0 0.8em 0.2em -1.6em;
       vertical-align: middle;
     }
     .display.math{display: block; text-align: center; margin: 0.5rem auto;}
     /* CSS for syntax highlighting */
-    html { -webkit-text-size-adjust: 100%; }
     pre > code.sourceCode { white-space: pre; position: relative; }
     pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
     pre > code.sourceCode > span:empty { height: 1.2em; }
@@ -342,7 +335,7 @@ supercomputer using one GPU 🎉</li>
 <li class="fragment">You can monitor your training using <a
 href="https://go.fzj.de/llview-jureca">llview</a>.</li>
 <li class="fragment">Use your Judoor credentials to connect.</li>
-<li class="fragment">Check the job number that you are interested in.
+<li class="fragment">Check the job number that you are intrested in.
 <img data-src="images/llview_job.png" height="400" /></li>
 </ul>
 </section>
@@ -376,8 +369,8 @@ GPU</strong></p>
 <li class="fragment"><p>It is a waste of resources.</p></li>
 <li class="fragment"><p>The training takes time (1h32m according to
 llview).</p></li>
-<li class="fragment"><p>Then, can we run our model on multiple
-GPUs?</p></li>
+<li class="fragment"><p>Then, can we run our model on multiple GPUs
+?</p></li>
 </ul>
 </section>
 <section id="what-if" class="slide level2">
@@ -405,7 +398,7 @@ data-src="images/llview_gpu_2.png" /></p></li>
 <section id="we-need-communication" class="slide level2">
 <h2>We need communication</h2>
 <ul>
-<li class="fragment"><p>Without a correct setup, the GPUs might not be
+<li class="fragment"><p>Without correct setup, the GPUs might not be
 utilized.</p></li>
 <li class="fragment"><p>Furthermore, we don’t have an established
 communication between the GPUs</p>
@@ -450,7 +443,7 @@ using All-Reduce.</li>
 <h2>Terminologies</h2>
 <ul>
 <li class="fragment">Before going further, we need to learn some
-terminology</li>
+terminologies</li>
 </ul>
 </section>
 <section id="world-size" class="slide level2">
@@ -556,9 +549,9 @@ slides.</p></li>
 <section id="setup-communication" class="slide level2">
 <h2>Setup communication</h2>
 <ul>
-<li class="fragment">We need to set up communication among the
+<li class="fragment">We need to setup a communication among the
 GPUs.</li>
-<li class="fragment">For that, we would need the file
+<li class="fragment">For that we would need the file
 <strong><code>distributed_utils.py</code></strong>.</li>
 <li class="fragment"><strong>TODOs</strong>💻📝:
 <ol type="1">
@@ -577,7 +570,7 @@ the method <strong><code>setup()</code></strong> defined in
 <strong><code>distributed_utils.py</code></strong>:</p>
 <div class="sourceCode" id="cb10"><pre
 class="sourceCode python"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Initialize a communication group and return the right identifiers.</span></span>
-<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>local_rank, rank, device <span class="op">=</span> setup()</span></code></pre></div></li>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>local_rank, rank, device, world_size <span class="op">=</span> setup()</span></code></pre></div></li>
 </ol></li>
 </ul>
 </section>
@@ -699,7 +692,7 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb17-1"><a h
 <ul>
 <li class="fragment"><p><strong>TODO 10</strong>💻📝:</p>
 <ul>
-<li class="fragment"><p>At <strong>lines 37 and 58</strong>, obtain the
+<li class="fragment"><p>At <strong>lines 37 and 58</strong>, Obtain the
 global average loss across the GPUs.</p>
 <div class="sourceCode" id="cb18"><pre
 class="sourceCode python"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Return the global average loss.</span></span>
@@ -861,7 +854,7 @@ file:</p>
 <ul>
 <li class="fragment"><p><strong>TODO 16</strong>💻📝:</p>
 <ul>
-<li class="fragment"><p>We <strong>remove</strong> the launching script
+<li class="fragment"><p>We <strong>remove</strong> the lauching script
 at line 41:</p>
 <div class="sourceCode" id="cb30"><pre
 class="sourceCode bash"><code class="sourceCode bash"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="ex">srun</span> <span class="at">--cpu_bind</span><span class="op">=</span>none python to_distributed_training.py </span></code></pre></div></li>
@@ -898,11 +891,11 @@ coordinating the communication among different nodes participating in
 the distributed training.</li>
 <li
 class="fragment"><strong><code>rdzv_endpoint=$MASTER_ADDR:$MASTER_PORT</code></strong>
-the IP that we set up in the previous slide to ensure all nodes know
+the IP that we setup in the previous slide to ensure all nodes know
 where to connect to start the training session.</li>
 <li
 class="fragment"><strong><code>rdzv_conf=is_host=\$(if ((SLURM_NODEID)); then echo 0; else echo 1; fi)</code></strong>
-The rendezvous host, which is responsible for coordinating the initial
+The rendezvous host which is responsible for coordinating the initial
 setup of communication among the nodes.</li>
 </ol></li>
 </ul>
@@ -931,11 +924,11 @@ data-src="images/llview_gpu_4.png" /></p></li>
 <ul>
 <li class="fragment"><p>And that our job took less time to finish
 training (25m vs 1h32m with one GPU)</p></li>
-<li class="fragment"><p>But what about using more nodes?</p></li>
+<li class="fragment"><p>But what about using more nodes ?</p></li>
 </ul>
 </section>
 <section id="what-about-using-more-nodes" class="slide level2">
-<h2>What about using more nodes?</h2>
+<h2>What about using more nodes ?</h2>
 </section>
 <section id="multi-node-training" class="slide level2">
 <h2>Multi-node training</h2>
@@ -980,24 +973,28 @@ single GPU</li>
 </section>
 <section id="fully-sharded-data-parallel-fsdp" class="slide level2">
 <h2>Fully Sharded Data Parallel (FSDP)</h2>
-<p><img data-src="images/fsdp/fsdp-0.svg" style="height:300pt" /> <img
-data-src="images/fsdp_.png" style="height:50pt" /></p>
+<p><img data-src="images/fsdp/fsdp-0.svg" style="height:4.16667in" />
+<img data-src="images/fsdp_.png" style="height:0.69444in" /></p>
 </section>
 <section id="fsdp" class="slide level2">
 <h2>FSDP</h2>
-<p><img data-src="images/fsdp/fsdp-1.svg" style="height:425pt" /></p>
+<p><img data-src="images/fsdp/fsdp-1.svg"
+style="height:5.90278in" /></p>
 </section>
 <section id="fsdp-1" class="slide level2">
 <h2>FSDP</h2>
-<p><img data-src="images/fsdp/fsdp-2.svg" style="height:425pt" /></p>
+<p><img data-src="images/fsdp/fsdp-2.svg"
+style="height:5.90278in" /></p>
 </section>
 <section id="fsdp-2" class="slide level2">
 <h2>FSDP</h2>
-<p><img data-src="images/fsdp/fsdp-3.svg" style="height:425pt" /></p>
+<p><img data-src="images/fsdp/fsdp-3.svg"
+style="height:5.90278in" /></p>
 </section>
 <section id="fsdp-3" class="slide level2">
 <h2>FSDP</h2>
-<p><img data-src="images/fsdp/fsdp-4.svg" style="height:425pt" /></p>
+<p><img data-src="images/fsdp/fsdp-4.svg"
+style="height:5.90278in" /></p>
 <!-- 
 ## FSDP
 
@@ -1149,11 +1146,13 @@ data-src="images/fsdp_.png" style="height:50pt" /></p>
 </section>
 <section id="fsdp-4" class="slide level2">
 <h2>FSDP</h2>
-<p><img data-src="images/fsdp/fsdp-25s.svg" style="height:425pt" /></p>
+<p><img data-src="images/fsdp/fsdp-25s.svg"
+style="height:5.90278in" /></p>
 </section>
 <section id="fsdp-5" class="slide level2">
 <h2>FSDP</h2>
-<p><img data-src="images/fsdp/fsdp-28s.svg" style="height:425pt" /></p>
+<p><img data-src="images/fsdp/fsdp-28s.svg"
+style="height:5.90278in" /></p>
 </section>
 <section id="fsdp-workflow" class="slide level2">
 <h2>FSDP workflow</h2>
@@ -1239,8 +1238,8 @@ optimizer state using <strong>DCP</strong>.</p></li>
 <section id="what-is-dcp" class="slide level2">
 <h2>What is DCP</h2>
 <ul>
-<li class="fragment"><p>Distributed Checkpoint (DCP) supports loading
-and saving models from multiple ranks in parallel. It supports load-time
+<li class="fragment"><p>Distributed Checkpoint (DCP) support loading and
+saving models from multiple ranks in parallel. It supports load-time
 resharding, which means a model can be saved using one cluster
 configuration (e.g., number of GPUs or nodes) and later loaded using a
 different configuration, without requiring the checkpoint to be
@@ -1251,7 +1250,7 @@ in a few significant ways:</p>
 <li class="fragment">It produces multiple files per checkpoint, with at
 least one per rank.</li>
 <li class="fragment">It operates in place, meaning that the model should
-allocate its data first, and DCP uses that storage instead.</li>
+allocate its data first and DCP uses that storage instead.</li>
 </ol></li>
 </ul>
 </section>
@@ -1396,8 +1395,8 @@ single GPU 🐋</li>
 <h2>Model Parallel</h2>
 <ul>
 <li class="fragment">Waste of resources</li>
-<li class="fragment">While one GPU is working, others are waiting for
-the whole process to end</li>
+<li class="fragment">While one GPU is working, others are waiting the
+whole process to end</li>
 <li class="fragment"><img data-src="images/no_pipe.png" />
 <ul>
 <li class="fragment"><a href="https://arxiv.org/abs/1811.06965">Source:

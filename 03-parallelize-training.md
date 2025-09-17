@@ -99,7 +99,7 @@ Let's have a look at the files **```to_distrbuted_training.py```** and **```run_
 
 - You can monitor your training using [llview](https://go.fzj.de/llview-jureca). 
 - Use your Judoor credentials to connect.
-- Check the job number that you are interested in.
+- Check the job number that you are intrested in.
     ![](images/llview_job.png){height=400px}
 
 ---
@@ -133,7 +133,7 @@ Let's have a look at the files **```to_distrbuted_training.py```** and **```run_
 
 - The training takes time (1h32m according to llview).
 
-- Then, can we run our model on multiple GPUs?
+- Then, can we run our model on multiple GPUs ?
 
 ---
 
@@ -164,7 +164,7 @@ Let's have a look at the files **```to_distrbuted_training.py```** and **```run_
 
 ## We need communication
 
-- Without a correct setup, the GPUs might not be utilized.
+- Without correct setup, the GPUs might not be utilized.
 
 - Furthermore, we don't have an established communication between the GPUs
 
@@ -213,7 +213,7 @@ Let's have a look at the files **```to_distrbuted_training.py```** and **```run_
 
 ## Terminologies
 
-- Before going further, we need to learn some terminology
+- Before going further, we need to learn some terminologies
 
 ---
 
@@ -334,8 +334,8 @@ If you're scaling DDP to use multiple nodes, the underlying principle remains th
 
 ## Setup communication
 
-- We need to set up communication among the GPUs. 
-- For that, we would need the file **```distributed_utils.py```**.
+- We need to setup a communication among the GPUs. 
+- For that we would need the file **```distributed_utils.py```**.
 - **TODOs**💻📝:
     1. Import **```distributed_utils```** file at line 11:
         
@@ -353,7 +353,7 @@ If you're scaling DDP to use multiple nodes, the underlying principle remains th
 
         ```python
         # Initialize a communication group and return the right identifiers.
-        local_rank, rank, device = setup()
+        local_rank, rank, device, world_size = setup()
         ```
 
 ---
@@ -475,7 +475,7 @@ def setup():
 
 - **TODO 10**💻📝:
 
-    - At **lines 37 and 58**, obtain the global average loss across the GPUs.
+    - At **lines 37 and 58**, Obtain the global average loss across the GPUs.
 
         ```python
         # Return the global average loss.
@@ -644,7 +644,7 @@ We are not done yet with **```run_to_distributed_training.sbatch```** file:
 
 - **TODO 16**💻📝: 
     
-    - We **remove** the launching script at line 41:
+    - We **remove** the lauching script at line 41:
     
         ```bash
         srun --cpu_bind=none python to_distributed_training.py 
@@ -674,8 +674,8 @@ We are not done yet with **```run_to_distributed_training.sbatch```** file:
     2. **```rdzv_backend c10d```**: the c10d method for coordinating the setup of communication among distributed processes.
     3. **```nproc_per_node=gpu```** the number of GPUs
     4. **```rdzv_id $RANDOM```** a random id which that acts as a central point for initializing and coordinating the communication among different nodes participating in the distributed training. 
-    5. **```rdzv_endpoint=$MASTER_ADDR:$MASTER_PORT```** the IP that we set up in the previous slide to ensure all nodes know where to connect to start the training session.
-    6. **```rdzv_conf=is_host=\$(if ((SLURM_NODEID)); then echo 0; else echo 1; fi)```** The rendezvous host, which is responsible for coordinating the initial setup of communication among the nodes.
+    5. **```rdzv_endpoint=$MASTER_ADDR:$MASTER_PORT```** the IP that we setup in the previous slide to ensure all nodes know where to connect to start the training session.
+    6. **```rdzv_conf=is_host=\$(if ((SLURM_NODEID)); then echo 0; else echo 1; fi)```** The rendezvous host which is responsible for coordinating the initial setup of communication among the nodes.
 
 ---
 
@@ -703,11 +703,11 @@ We are not done yet with **```run_to_distributed_training.sbatch```** file:
 
 - And that our job took less time to finish training (25m vs 1h32m with one GPU)
 
-- But what about using more nodes?
+- But what about using more nodes ?
 
 ---
 
-## What about using more nodes?
+## What about using more nodes ?
 
 ---
 
@@ -1040,12 +1040,12 @@ We are not done yet with **```run_to_distributed_training.sbatch```** file:
 
 ## What is DCP
 
-- Distributed Checkpoint (DCP) supports loading and saving models from multiple ranks in parallel. It supports load-time resharding, which means a model can be saved using one cluster configuration (e.g., number of GPUs or nodes) and later loaded using a different configuration, without requiring the checkpoint to be rewritten.
+- Distributed Checkpoint (DCP) support loading and saving models from multiple ranks in parallel. It supports load-time resharding, which means a model can be saved using one cluster configuration (e.g., number of GPUs or nodes) and later loaded using a different configuration, without requiring the checkpoint to be rewritten.
 
 - DCP is different than torch.save and torch.load in a few significant ways:
 
     1. It produces multiple files per checkpoint, with at least one per rank.
-    2. It operates in place, meaning that the model should allocate its data first, and DCP uses that storage instead.
+    2. It operates in place, meaning that the model should allocate its data first and DCP uses that storage instead.
 
 ---
 
@@ -1205,7 +1205,7 @@ We are not done yet with **```run_to_distributed_training.sbatch```** file:
 ## Model Parallel
 
 - Waste of resources
-- While one GPU is working, others are waiting for the whole process to end
+- While one GPU is working, others are waiting the whole process to end
 - ![](images/no_pipe.png)
     - [Source: GPipe: Efficient Training of Giant Neural Networks using Pipeline Parallelism](https://arxiv.org/abs/1811.06965)
 
