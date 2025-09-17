@@ -86,13 +86,13 @@ date: September 16, 2025
 
     ```bash
     cd $HOME/course
-    git clone https://github.com/HelmholtzAI-FZJ/2025-06-course-Bringing-Deep-Learning-Workloads-to-JSC-supercomputers.git
+    git clone https://github.com/surak/2025-09-course-Bringing-Deep-Learning-Workloads-to-JSC-supercomputers.git
     ```
 
 - Move to the correct folder:
 
     ```
-    cd 2025-06-course-Bringing-Deep-Learning-Workloads-to-JSC-supercomputers/code/dataloading/
+    cd 2025-09-course-Bringing-Deep-Learning-Workloads-to-JSC-supercomputers/code/dataloading/
     ```
 
 - We used the ImageNet dataset for the examples.

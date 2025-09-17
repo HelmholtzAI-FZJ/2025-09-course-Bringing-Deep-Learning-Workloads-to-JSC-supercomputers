@@ -15,26 +15,19 @@
     .reveal .sourceCode {  /* see #7635 */
       overflow: visible;
     }
-    /* Default styles provided by pandoc.
-    ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
-    */
     code{white-space: pre-wrap;}
     span.smallcaps{font-variant: small-caps;}
     div.columns{display: flex; gap: min(4vw, 1.5em);}
     div.column{flex: auto; overflow-x: auto;}
     div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
-    /* The extra [class] is a hack that increases specificity enough to
-       override a similar rule in reveal.js */
-    ul.task-list[class]{list-style: none;}
+    ul.task-list{list-style: none;}
     ul.task-list li input[type="checkbox"] {
-      font-size: inherit;
       width: 0.8em;
       margin: 0 0.8em 0.2em -1.6em;
       vertical-align: middle;
     }
     .display.math{display: block; text-align: center; margin: 0.5rem auto;}
     /* CSS for syntax highlighting */
-    html { -webkit-text-size-adjust: 100%; }
     pre > code.sourceCode { white-space: pre; position: relative; }
     pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
     pre > code.sourceCode > span:empty { height: 1.2em; }
@@ -241,25 +234,25 @@ supercomputers</h1>
 <h3 id="schedule-for-day-2">Schedule for day 2</h3>
 <table>
 <thead>
-<tr>
+<tr class="header">
 <th>Time</th>
 <th>Title</th>
 </tr>
 </thead>
 <tbody>
-<tr>
+<tr class="odd">
 <td>13:00 - 13:10</td>
 <td>Welcome, questions</td>
 </tr>
-<tr>
+<tr class="even">
 <td>13:10 - 14:10</td>
 <td>Data loading</td>
 </tr>
-<tr>
+<tr class="odd">
 <td>14:10 - 14:25</td>
 <td>Coffee Break (flexible)</td>
 </tr>
-<tr>
+<tr class="even">
 <td>14:25 - 17:00</td>
 <td>Parallelize Training</td>
 </tr>
@@ -278,7 +271,7 @@ same files</li>
 <li class="fragment">Performance tradeoff between shared accessibility
 and speed</li>
 <li class="fragment">Our I/O server is almost a supercomputer by itself
-<img data-src="images/machines.png" style="height:350pt"
+<img data-src="images/machines.png" style="height:4.86111in"
 alt="JSC Supercomputer Stragegy" /></li>
 </ul>
 </section>
@@ -352,9 +345,9 @@ examples on how to create HDF5 and pyarrow files.</p></li>
 <li class="fragment"><p>We need to download some code:</p>
 <div class="sourceCode" id="cb4"><pre
 class="sourceCode bash"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> <span class="va">$HOME</span>/course</span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> clone https://github.com/HelmholtzAI-FZJ/2025-06-course-Bringing-Deep-Learning-Workloads-to-JSC-supercomputers.git</span></code></pre></div></li>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> clone https://github.com/surak/2025-09-course-Bringing-Deep-Learning-Workloads-to-JSC-supercomputers.git</span></code></pre></div></li>
 <li class="fragment"><p>Move to the correct folder:</p>
-<pre><code>cd 2025-06-course-Bringing-Deep-Learning-Workloads-to-JSC-supercomputers/code/dataloading/</code></pre></li>
+<pre><code>cd 2025-09-course-Bringing-Deep-Learning-Workloads-to-JSC-supercomputers/code/dataloading/</code></pre></li>
 <li class="fragment"><p>We used the ImageNet dataset for the
 examples.</p></li>
 </ul>
