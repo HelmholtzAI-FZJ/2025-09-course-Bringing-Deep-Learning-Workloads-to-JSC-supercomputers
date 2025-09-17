@@ -4,7 +4,6 @@
   <meta charset="utf-8">
   <meta name="generator" content="pandoc">
   <meta name="author" content="Alexandre Strube // Sabrina Benassou">
-  <meta name="dcterms.date" content="2025-09-16">
   <title>Bringing Deep Learning Workloads to JSC supercomputers</title>
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -226,7 +225,7 @@
 supercomputers</h1>
   <p class="subtitle">Parallelize Training</p>
   <p class="author">Alexandre Strube // Sabrina Benassou</p>
-  <p class="date">September 16, 2025</p>
+  <p class="date">March 25th, 2025</p>
 </section>
 
 <section id="before-starting" class="slide level2">
@@ -661,7 +660,7 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb15-1"><a h
 <ul>
 <li class="fragment"><p><strong>TODO 8</strong>💻📝:</p>
 <ul>
-<li class="fragment"><p>At line 103, wrap the model in a
+<li class="fragment"><p>At line 110, wrap the model in a
 <strong>DistributedDataParallel</strong> (DDP) module to parallelize the
 training across multiple GPUs.</p>
 <div class="sourceCode" id="cb16"><pre
@@ -678,7 +677,7 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb16-1"><a h
 <ul>
 <li class="fragment"><p><strong>TODO 9</strong>💻📝:</p>
 <ul>
-<li class="fragment"><p>At line 117, <strong>set</strong> the current
+<li class="fragment"><p>At line 124, <strong>set</strong> the current
 epoch for the dataset sampler to ensure proper data shuffling in each
 epoch</p>
 <div class="sourceCode" id="cb17"><pre
@@ -709,11 +708,11 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb18-1"><a h
 <code>print</code> methods by <strong><code>print0</code></strong>
 method defined in <strong><code>distributed_utils.py</code></strong> to
 allow only rank 0 to print in the output file.</p></li>
-<li class="fragment"><p>At <strong>line 123</strong></p>
+<li class="fragment"><p>At <strong>line 130</strong></p>
 <div class="sourceCode" id="cb19"><pre
 class="sourceCode python"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="co"># We use the utility function print0 to print messages only from rank 0.</span></span>
 <span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>print0(<span class="ss">f&#39;[</span><span class="sc">{</span>epoch<span class="op">+</span><span class="dv">1</span><span class="sc">}</span><span class="ss">/</span><span class="sc">{</span>args<span class="sc">.</span>epochs<span class="sc">}</span><span class="ss">] Train loss: </span><span class="sc">{</span>train_loss<span class="sc">:.5f}</span><span class="ss">, validation loss: </span><span class="sc">{</span>val_loss<span class="sc">:.5f}</span><span class="ss">&#39;</span>)</span></code></pre></div></li>
-<li class="fragment"><p>At <strong>line 135</strong></p>
+<li class="fragment"><p>At <strong>line 142</strong></p>
 <div class="sourceCode" id="cb20"><pre
 class="sourceCode python"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="co"># We use the utility function print0 to print messages only from rank 0.</span></span>
 <span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>print0(<span class="st">&#39;Final test loss:&#39;</span>, test_loss.item())</span></code></pre></div></li>
@@ -741,7 +740,7 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb21-1"><a h
 <ul>
 <li class="fragment"><p><strong>TODO 12</strong>💻📝:</p>
 <ul>
-<li class="fragment"><p>At <strong>lines 130 and 139</strong>, replace
+<li class="fragment"><p>At <strong>lines 137 and 146</strong>, replace
 torch.save method with the utility function save0 to allow only the
 process with rank 0 to save the model.</p>
 <div class="sourceCode" id="cb22"><pre
@@ -778,7 +777,7 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb24-1"><a h
 <ul>
 <li class="fragment"><p><strong>TODO 13</strong>💻📝:</p>
 <ul>
-<li class="fragment"><p>At <strong>line 142</strong>, destroy every
+<li class="fragment"><p>At <strong>line 149</strong>, destroy every
 process group and backend by calling destroy_process_group()</p>
 <div class="sourceCode" id="cb25"><pre
 class="sourceCode python"><code class="sourceCode python"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Destroy the process group to clean up resources</span></span>
@@ -973,8 +972,9 @@ single GPU</li>
 </section>
 <section id="fully-sharded-data-parallel-fsdp" class="slide level2">
 <h2>Fully Sharded Data Parallel (FSDP)</h2>
-<p><img data-src="images/fsdp/fsdp-0.svg" style="height:4.16667in" />
-<img data-src="images/fsdp_.png" style="height:0.69444in" /></p>
+<p><img data-src="images/fsdp/fsdp-0.svg"
+style="height:4.16667in" /></p>
+<!-- ![](images/fsdp_.png){height=50pt}  -->
 </section>
 <section id="fsdp" class="slide level2">
 <h2>FSDP</h2>
@@ -1188,7 +1188,7 @@ class="slide level2">
 <h2>Wrap the model AGAIN</h2>
 <ul>
 <li class="fragment"><p><strong>TODO 17</strong>💻📝:
-<strong>Delete</strong> lines 102–107 that wrap the model in
+<strong>Delete</strong> lines 109–114 that wrap the model in
 DistributedDataParallel, and instead wrap the model using
 torch.distributed.fsdp.</p>
 <div class="sourceCode" id="cb35"><pre
@@ -1213,12 +1213,12 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb35-1"><a h
 <ul>
 <li class="fragment"><strong>TODO 18</strong>💻📝:
 <ul>
-<li class="fragment"><p><strong>Remove</strong> lines 137 to 139 and
+<li class="fragment"><p><strong>Remove</strong> lines 144 to 146 and
 <strong>replace</strong> them with:</p>
 <div class="sourceCode" id="cb36"><pre
 class="sourceCode python"><code class="sourceCode python"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Save sharded model and optimizer</span></span>
 <span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a>save_sharded_model(model, optimizer, <span class="st">&#39;model_best&#39;</span>)</span></code></pre></div></li>
-<li class="fragment"><p><strong>Remove</strong> lines 145 to 147 and
+<li class="fragment"><p><strong>Remove</strong> lines 152 to 154 and
 <strong>replace</strong> them with:</p>
 <div class="sourceCode" id="cb37"><pre
 class="sourceCode python"><code class="sourceCode python"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Save sharded model and optimizer</span></span>
@@ -1229,10 +1229,13 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb37-1"><a h
 <section id="how-the-model-is-saved" class="slide level2">
 <h2>How the model is saved</h2>
 <ul>
-<li class="fragment"><p>We can save the sharded model state and the
-optimizer state using <strong>DCP</strong>.</p></li>
-<li class="fragment"><p>The relevant method can be found in the
+<li class="fragment"><p>We can either save the full model state, as we
+did with DDP, or save the sharded model state. We can also choose to
+save the optimizer state.</p></li>
+<li class="fragment"><p>The relevant methods can be found in the
 <strong>distributed_utils.py</strong> file.</p></li>
+<li class="fragment"><p>To save the sharded model, we use
+<strong>DCP</strong>.</p></li>
 </ul>
 </section>
 <section id="what-is-dcp" class="slide level2">
@@ -1254,13 +1257,13 @@ allocate its data first and DCP uses that storage instead.</li>
 </ol></li>
 </ul>
 </section>
-<section id="save-sharded-model" class="slide level2">
-<h2>Save sharded model</h2>
+<section id="save-full-model-state" class="slide level2">
+<h2>Save full model state</h2>
 <ul>
 <li class="fragment"><p>We use <strong>get_model_state_dict</strong>
-method with <strong>full_state_dict=False</strong> and
+method with <strong>full_state_dict=True</strong> and
 <strong>cpu_offload=True</strong> to all-gathers tensors and offload
-them to CPU.</p>
+them to CPU. No ShardedTensor will be in the returned state_dict.</p>
 <div class="sourceCode" id="cb38"><pre
 class="sourceCode python"><code class="sourceCode python"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> save_full_model(model, optimizer<span class="op">=</span><span class="va">None</span>, <span class="op">*</span>args, <span class="op">**</span>kwargs):</span>
 <span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">&quot;&quot;&quot;Stream all model parameters to rank 0 on the CPU, then pass all</span></span>
@@ -1268,7 +1271,7 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb38-1"><a h
 <span id="cb38-4"><a href="#cb38-4" aria-hidden="true" tabindex="-1"></a><span class="co">    the root process.</span></span>
 <span id="cb38-5"><a href="#cb38-5" aria-hidden="true" tabindex="-1"></a><span class="co">    &quot;&quot;&quot;</span></span>
 <span id="cb38-6"><a href="#cb38-6" aria-hidden="true" tabindex="-1"></a>    state_dict_options <span class="op">=</span> dist_state_dict.StateDictOptions(</span>
-<span id="cb38-7"><a href="#cb38-7" aria-hidden="true" tabindex="-1"></a>        full_state_dict<span class="op">=</span><span class="va">False</span>,</span>
+<span id="cb38-7"><a href="#cb38-7" aria-hidden="true" tabindex="-1"></a>        full_state_dict<span class="op">=</span><span class="va">True</span>,</span>
 <span id="cb38-8"><a href="#cb38-8" aria-hidden="true" tabindex="-1"></a>        cpu_offload<span class="op">=</span><span class="va">True</span>,</span>
 <span id="cb38-9"><a href="#cb38-9" aria-hidden="true" tabindex="-1"></a>    )</span>
 <span id="cb38-10"><a href="#cb38-10" aria-hidden="true" tabindex="-1"></a>    cpu_state_dict <span class="op">=</span> dist_state_dict.get_model_state_dict(</span>
@@ -1286,13 +1289,45 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb38-1"><a h
 <span id="cb38-22"><a href="#cb38-22" aria-hidden="true" tabindex="-1"></a>    save0(cpu_state, <span class="op">*</span>args, <span class="op">**</span>kwargs)</span></code></pre></div></li>
 </ul>
 </section>
+<section id="save-sharded-model" class="slide level2">
+<h2>Save sharded model</h2>
+<pre><code>``` python
+class AppState(Stateful):
+
+    def __init__(self, model, optimizer=None):
+        self.model = model
+        self.optimizer = optimizer
+
+    def state_dict(self):
+        # this line automatically manages FSDP FQN&#39;s, as well as sets the default state dict type to FSDP.SHARDED_STATE_DICT
+        model_state_dict, optimizer_state_dict = get_state_dict(self.model, self.optimizer)
+        return {
+            &quot;model&quot;: model_state_dict,
+            &quot;optim&quot;: optimizer_state_dict
+        }
+
+    def load_state_dict(self, state_dict):
+        # sets our state dicts on the model and optimizer, now that we&#39;ve loaded
+        set_state_dict(
+            self.model,
+            self.optimizer,
+            model_state_dict=state_dict[&quot;model&quot;],
+            optim_state_dict=state_dict[&quot;optim&quot;]
+        )
+
+def save_sharded_model(model, optimizer=None, CHECKPOINT_DIR=&#39;checkpoints&#39;):
+    state_dict = { &quot;app&quot;: AppState(model, optimizer) }
+    dcp.save(state_dict, checkpoint_id=CHECKPOINT_DIR)
+
+```</code></pre>
+</section>
 <section id="run-your-training" class="slide level2">
 <h2>Run your training</h2>
 <ul>
 <li class="fragment"><p>You can run the same sbatch file without any
 modification.</p>
-<div class="sourceCode" id="cb39"><pre
-class="sourceCode bash"><code class="sourceCode bash"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a><span class="ex">sbatch</span> run_to_distributed_training.sbatch</span></code></pre></div></li>
+<div class="sourceCode" id="cb40"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a><span class="ex">sbatch</span> run_to_fsdp_training.sbatch</span></code></pre></div></li>
 </ul>
 </section>
 <section id="llview-7" class="slide level2">

@@ -2,7 +2,7 @@
 author: Alexandre Strube // Sabrina Benassou 
 title: Bringing Deep Learning Workloads to JSC supercomputers
 subtitle: Parallelize Training
-date: September 16, 2025
+date: March 25th, 2025
 ---
 
 ## Before Starting
@@ -446,7 +446,7 @@ def setup():
 
 - **TODO 8**💻📝:
 
-    - At line 103, wrap the model in a **DistributedDataParallel** (DDP) module to parallelize the training across multiple GPUs.
+    - At line 110, wrap the model in a **DistributedDataParallel** (DDP) module to parallelize the training across multiple GPUs.
     
         ```python 
         # Wrap the model in DistributedDataParallel module 
@@ -462,7 +462,7 @@ def setup():
 
 - **TODO 9**💻📝:
 
-    - At line 117, **set** the current epoch for the dataset sampler to ensure proper data shuffling in each epoch
+    - At line 124, **set** the current epoch for the dataset sampler to ensure proper data shuffling in each epoch
 
         ```python
         # Pass the current epoch to the sampler to ensure proper data shuffling in each epoch
@@ -490,14 +490,14 @@ def setup():
 
     - **Replace** all the ```print``` methods by **```print0```** method defined in **```distributed_utils.py```** to allow only rank 0 to print in the output file.
     
-    - At **line 123** 
+    - At **line 130** 
 
         ```python
         # We use the utility function print0 to print messages only from rank 0.
         print0(f'[{epoch+1}/{args.epochs}] Train loss: {train_loss:.5f}, validation loss: {val_loss:.5f}')
         ```
 
-    - At **line 135**
+    - At **line 142**
     
         ```python
         # We use the utility function print0 to print messages only from rank 0.
@@ -529,7 +529,7 @@ def print0(*args, **kwargs):
 
 - **TODO 12**💻📝:
 
-    - At **lines 130 and 139**, replace torch.save method with the utility function save0 to allow only the process with rank 0 to save the model.
+    - At **lines 137 and 146**, replace torch.save method with the utility function save0 to allow only the process with rank 0 to save the model.
  
         ```python 
         # We allow only rank=0 to save the model
@@ -569,7 +569,7 @@ def save0(*args, **kwargs):
 
 - **TODO 13**💻📝:
 
-    - At **line 142**, destroy every process group and backend by calling destroy_process_group() 
+    - At **line 149**, destroy every process group and backend by calling destroy_process_group() 
 
         ```python 
         # Destroy the process group to clean up resources
@@ -756,7 +756,9 @@ We are not done yet with **```run_to_distributed_training.sbatch```** file:
 ## Fully Sharded Data Parallel (FSDP)
 
 
-![](images/fsdp/fsdp-0.svg){height=300pt} ![](images/fsdp_.png){height=50pt} 
+![](images/fsdp/fsdp-0.svg){height=300pt} 
+
+<!-- ![](images/fsdp_.png){height=50pt}  -->
 
 
 ---
@@ -989,7 +991,7 @@ We are not done yet with **```run_to_distributed_training.sbatch```** file:
 
 ## Wrap the model AGAIN
 
-- **TODO 17**💻📝: **Delete** lines 102–107 that wrap the model in DistributedDataParallel, and instead wrap the model using torch.distributed.fsdp.
+- **TODO 17**💻📝: **Delete** lines 109–114 that wrap the model in DistributedDataParallel, and instead wrap the model using torch.distributed.fsdp.
 
     ```python
     # Unlike DDP, we should apply fully_shard to both submodules and the root model.
@@ -1013,14 +1015,14 @@ We are not done yet with **```run_to_distributed_training.sbatch```** file:
 ## Save Model state
 
 - **TODO 18**💻📝: 
-    - **Remove** lines 137 to 139 and **replace** them with:
+    - **Remove** lines 144 to 146 and **replace** them with:
         
         ```python
         # Save sharded model and optimizer
         save_sharded_model(model, optimizer, 'model_best')
         ```
 
-    - **Remove** lines 145 to 147 and **replace** them with:
+    - **Remove** lines 152 to 154 and **replace** them with:
         
         ```python    
         # Save sharded model and optimizer
@@ -1029,12 +1031,13 @@ We are not done yet with **```run_to_distributed_training.sbatch```** file:
 
 ---
 
-
 ## How the model is saved
 
-- We can save the sharded model state and the optimizer state using **DCP**.
+- We can either save the full model state, as we did with DDP, or save the sharded model state. We can also choose to save the optimizer state.
 
-- The relevant method can be found in the **distributed_utils.py** file.
+- The relevant methods can be found in the **distributed_utils.py** file.
+
+- To save the sharded model, we use **DCP**.
 
 ---
 
@@ -1049,9 +1052,9 @@ We are not done yet with **```run_to_distributed_training.sbatch```** file:
 
 ---
 
-## Save sharded model 
+## Save full model state
 
-- We use **get_model_state_dict** method with **full_state_dict=False** and **cpu_offload=True** to all-gathers tensors and offload them to CPU. 
+- We use **get_model_state_dict** method with **full_state_dict=True** and **cpu_offload=True** to all-gathers tensors and offload them to CPU. No ShardedTensor will be in the returned state_dict. 
 
     ```python
     def save_full_model(model, optimizer=None, *args, **kwargs):
@@ -1060,7 +1063,7 @@ We are not done yet with **```run_to_distributed_training.sbatch```** file:
         the root process.
         """
         state_dict_options = dist_state_dict.StateDictOptions(
-            full_state_dict=False,
+            full_state_dict=True,
             cpu_offload=True,
         )
         cpu_state_dict = dist_state_dict.get_model_state_dict(
@@ -1080,12 +1083,45 @@ We are not done yet with **```run_to_distributed_training.sbatch```** file:
 
 ---
 
+## Save sharded model 
+    ``` python
+    class AppState(Stateful):
+
+        def __init__(self, model, optimizer=None):
+            self.model = model
+            self.optimizer = optimizer
+
+        def state_dict(self):
+            # this line automatically manages FSDP FQN's, as well as sets the default state dict type to FSDP.SHARDED_STATE_DICT
+            model_state_dict, optimizer_state_dict = get_state_dict(self.model, self.optimizer)
+            return {
+                "model": model_state_dict,
+                "optim": optimizer_state_dict
+            }
+
+        def load_state_dict(self, state_dict):
+            # sets our state dicts on the model and optimizer, now that we've loaded
+            set_state_dict(
+                self.model,
+                self.optimizer,
+                model_state_dict=state_dict["model"],
+                optim_state_dict=state_dict["optim"]
+            )
+
+    def save_sharded_model(model, optimizer=None, CHECKPOINT_DIR='checkpoints'):
+        state_dict = { "app": AppState(model, optimizer) }
+        dcp.save(state_dict, checkpoint_id=CHECKPOINT_DIR)
+
+    ```
+
+---
+
 ## Run your training
 
 - You can run the same sbatch file without any modification.
 
     ```bash
-    sbatch run_to_distributed_training.sbatch
+    sbatch run_to_fsdp_training.sbatch
     ```
 
 ---
